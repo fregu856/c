@@ -24,3 +24,5 @@
 - - $ ./odd_even (in ~/c/assignment1)
 
 - - With the original code, the error message is displayed almost every time
+- - After inserting the long_calculation() call, the error message is displayed every single time
+- - In increment_number(), does long_calculation() really have to be called where it's currently called? Feels unnecessary to lock the common variables for such a long time. 
