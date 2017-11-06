@@ -7,4 +7,4 @@
 - - $ cd simple_os_2013_03_05/java_gui/java
 - - $ java GUISimpleOS
  
-# # Assignment 1:
+## Assignment 1:
