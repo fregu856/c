@@ -14,6 +14,8 @@ set_task for setting the clock
 #include <semaphore.h>
 
 #include "si_ui.h"
+#include "display.h"
+#include "clock.h"
 
 /* clock variables */
 
@@ -122,26 +124,6 @@ int time_ok(int hours, int minutes, int seconds)
 {
     return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 &&
         seconds >= 0 && seconds <= 59;
-}
-
-/* display_time: displays hours, minutes and seconds by
-   sending them to the user interface */
-void display_time(int hours, int minutes, int seconds)
-{
-    char display_message[20];
-
-    char draw_message[100];
-
-    /* convert hours, minutes and seconds to display format */
-    make_display_message(display_message, hours, minutes, seconds);
-
-    sprintf(draw_message, "Time: %s", display_message);
-
-    /* write to user interface */
-    si_ui_draw_begin();
-    si_ui_draw_string("send \"set:hh:mm:ss\" to set time", 90, 20);
-    si_ui_draw_string(draw_message, 145, 55);
-    si_ui_draw_end();
 }
 
 /* tasks */
