@@ -15,6 +15,8 @@ set_task for setting the clock
 
 #include "si_ui.h"
 
+//hej
+
 /* clock variables */
 
 /* mutex for protecting the current time */
