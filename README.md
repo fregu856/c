@@ -32,6 +32,6 @@
 - - $ cd ~/c/assignment2
 - - $ make set_clock
 - Run set_clock:
-- - $ cd simple_os_2013_03_05/java_gui/java
+- - $ cd ~/simple_os_2013_03_05/java_gui/java
 - - $ java GUISimpleOS
 - - $ ./set_clock (in ~/c/assignment2)
