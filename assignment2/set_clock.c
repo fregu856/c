@@ -58,11 +58,16 @@ void* clock_thread(void *unused)
         clock_get_time(&hours, &minutes, &seconds);
         display_time(hours, minutes, seconds);
 
+        // check if the alarm is enabled:
         if (clock_alarm_enabled())
         {
+            // get the alarm time:
             clock_get_alarm_time(&alarm_hours, &alarm_minutes, &alarm_seconds);
+
+            // check if the alarm time equals the current time:
             if (hours == alarm_hours && minutes == alarm_minutes && seconds == alarm_seconds)
             {
+              // signal that the alarm shall be activated:
               clock_activation_signal();
             }
         }
@@ -81,8 +86,10 @@ void* alarm_thread(void *unused)
     /* infinite loop */
     while (1)
     {
+        // wait for signal to activate the alarm:
         clock_activation_wait();
 
+        // activate the alarm every 1.5 seconds until the user acknowledges it:
         while(clock_alarm_enabled())
         {
             display_alarm_text();
@@ -93,8 +100,8 @@ void* alarm_thread(void *unused)
     }
 }
 
-/* GUI_thread: reads messages from the user interface, and
-   sets the clock, or exits the program */
+// GUI_thread: reads messages from the user interface and sets the clock, or sets
+// the alarm, or resets the alarm, or exits the program
 void* GUI_thread(void *unused)
 {
     /* message array */
