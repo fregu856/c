@@ -19,25 +19,7 @@ set_task for setting the clock
 
 /* clock variables */
 
-/* mutex for protecting the current time */
-pthread_mutex_t Mutex;
-
-/* the current time */
-int Hours, Minutes, Seconds;
-
 /* functions operating on the clock */
-
-/* init_clock: initialises the clock variables */
-void init_clock(void)
-{
-    /* set starting time */
-    Hours = 23;
-    Minutes = 59;
-    Seconds = 30;
-
-    /* initialise mutex */
-    pthread_mutex_init(&Mutex, NULL);
-}
 
 /* increment_time: increments the current time with
    one second */
@@ -67,21 +49,6 @@ void increment_time(void)
     pthread_mutex_unlock(&Mutex);
 }
 
-/* set_time: set time to hours, minutes and seconds */
-void set_time(int hours, int minutes, int seconds)
-{
-    /* reserve clock variables */
-    pthread_mutex_lock(&Mutex);
-
-    /* assign values */
-    Hours = hours;
-    Minutes = minutes;
-    Seconds = seconds;
-
-    /* release clock variables */
-    pthread_mutex_unlock(&Mutex);
-}
-
 /* get_time: read time from common clock variables */
 void get_time(int *hours, int *minutes, int *seconds)
 {
@@ -97,27 +64,12 @@ void get_time(int *hours, int *minutes, int *seconds)
     pthread_mutex_unlock(&Mutex);
 }
 
-/* make_display_message: create string for printout, given a time expressed
-   in hours, minutes and seconds */
-void make_display_message(char display_message[], int hours, int minutes, int seconds)
+/* time_from_set_time_message: extract time from set time
+   message from user interface */
+void time_from_set_time_message(char message[], int *hours, int *minutes, int *seconds)
 {
-    display_message[0] = hours / 10 + '0';
-    display_message[1] = hours % 10 + '0';
-    display_message[2] = ':';
-    display_message[3] = minutes / 10 + '0';
-    display_message[4] = minutes % 10 + '0';
-    display_message[5] = ':';
-    display_message[6] = seconds / 10 + '0';
-    display_message[7] = seconds % 10 + '0';
-    display_message[8] = '\0';
+    sscanf(message,"set %d %d %d", hours, minutes, seconds);
 }
-
-/* time_from_set_message: extract time from set message from user interface */
-void time_from_set_message(char message[], int *hours, int *minutes, int *seconds)
-{
-    sscanf(message,"set:%d:%d:%d",hours, minutes, seconds);
-}
-
 
 /* time_ok: returns nonzero if hours, minutes and seconds represents a valid time */
 int time_ok(int hours, int minutes, int seconds)
@@ -128,8 +80,8 @@ int time_ok(int hours, int minutes, int seconds)
 
 /* tasks */
 
-/* clock_task: clock task */
-void *clock_thread(void *unused)
+/* clock_thread: clock thread */
+void* clock_thread(void *unused)
 {
     /* local copies of the current time */
     int hours, minutes, seconds;
@@ -149,9 +101,19 @@ void *clock_thread(void *unused)
     }
 }
 
-/* set_task: reads messages from the user interface, and
+/* alarm_thread: alarm thread */
+void* alarm_thread(void *unused)
+{
+    /* infinite loop */
+    while (1)
+    {
+
+    }
+}
+
+/* GUI_thread: reads messages from the user interface, and
    sets the clock, or exits the program */
-void * set_thread(void *unused)
+void* GUI_thread(void *unused)
 {
     /* message array */
     char message[SI_UI_MAX_MESSAGE_SIZE];
@@ -203,13 +165,13 @@ int main(void)
 
     /* create tasks */
     pthread_t clock_thread_handle;
-    pthread_t set_thread_handle;
+    pthread_t GUI_thread_handle;
 
     pthread_create(&clock_thread_handle, NULL, clock_thread, 0);
-    pthread_create(&set_thread_handle, NULL, set_thread, 0);
+    pthread_create(&GUI_thread_handle, NULL, GUI_thread, 0);
 
     pthread_join(clock_thread_handle, NULL);
-    pthread_join(set_thread_handle, NULL);
+    pthread_join(GUI_thread_handle, NULL);
     /* will never be here! */
     return 0;
 }
