@@ -25,16 +25,11 @@ int Hours, Minutes, Seconds;
 
 /* functions operating on the clock */
 
-// #############################################################################
-// #############################################################################
-// MODIFIED FUNCTION
-// #############################################################################
-// #############################################################################
 /* init_clock: initialises the clock variables */
 void init_clock(void)
 {
     /* set starting time */
-    Hours = 12;
+    Hours = 23;
     Minutes = 59;
     Seconds = 30;
 
@@ -42,11 +37,6 @@ void init_clock(void)
     pthread_mutex_init(&Mutex, NULL);
 }
 
-// #############################################################################
-// #############################################################################
-// MODIFIED FUNCTION
-// #############################################################################
-// #############################################################################
 /* increment_time: increments the current time with
    one second */
 void increment_time(void)
@@ -64,9 +54,9 @@ void increment_time(void)
         {
             Minutes = 0;
             Hours++;
-            if (Hours > 12)
+            if (Hours > 23)
             {
-                Hours = 1;
+                Hours = 0;
             }
         }
     }
@@ -126,15 +116,11 @@ void time_from_set_message(char message[], int *hours, int *minutes, int *second
     sscanf(message,"set:%d:%d:%d",hours, minutes, seconds);
 }
 
-// #############################################################################
-// #############################################################################
-// MODIFIED FUNCTION
-// #############################################################################
-// #############################################################################
+
 /* time_ok: returns nonzero if hours, minutes and seconds represents a valid time */
 int time_ok(int hours, int minutes, int seconds)
 {
-    return hours >= 1 && hours <= 12 && minutes >= 0 && minutes <= 59 &&
+    return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 &&
         seconds >= 0 && seconds <= 59;
 }
 
@@ -160,11 +146,6 @@ void display_time(int hours, int minutes, int seconds)
 
 /* tasks */
 
-// #############################################################################
-// #############################################################################
-// MODIFIED FUNCTION
-// #############################################################################
-// #############################################################################
 /* clock_task: clock task */
 void *clock_thread(void *unused)
 {
@@ -181,14 +162,14 @@ void *clock_thread(void *unused)
         /* increment time */
         increment_time();
 
-        // wait 0.5 seconds:
-        usleep(500000);
+        /* wait one second */
+        usleep(1000000);
     }
 }
 
 /* set_task: reads messages from the user interface, and
    sets the clock, or exits the program */
-void *set_thread(void *unused)
+void * set_thread(void *unused)
 {
     /* message array */
     char message[SI_UI_MAX_MESSAGE_SIZE];
