@@ -1,0 +1,48 @@
+#ifndef CLOCK_H
+#define CLOCK_H
+
+/* clock_init: initialise clock */ 
+void clock_init(void); 
+
+/* clock_set_time: set current time to hours, minutes and seconds */ 
+void clock_set_time(int hours, int minutes, int seconds); 
+
+/* time_from_set_time_message: extract time from set time 
+   message from user interface */ 
+void time_from_set_time_message(
+    char message[], int *hours, int *minutes, int *seconds);
+
+/* get_time: read time from common clock variables */
+void get_time(int *hours, int *minutes, int *seconds);
+
+/* clock_set_alarm_time: set current time to hours, minutes and seconds */ 
+void alarm_clock_set_time(int hours, int minutes, int seconds);
+
+/* alarm_clock_activate: activate alarm when alarm is enabled and time is alarm_time */
+void alarm_clock_activate();
+
+/* alarm_clock_enable: enable alarm when alarm time is set */
+void alarm_clock_enable();
+
+/* alarm_clock_disable: disable alarm when reset is called */
+void alarm_clock_disable();
+
+/* compare_time: compares time with alarm_time if alarm is enabled. */
+void compare_time(int hours, int minutes, int seconds);
+
+/* time_from_set_alarm_time_message: extract time from set time 
+   message from user interface */ 
+void time_from_set_alarm_time_message(
+    char message[], int *hours, int *minutes, int *seconds);
+
+/* get_alarm_time: read time from common clock variables */
+void get_alarm_time(int *hours, int *minutes, int *seconds);
+
+/* increment_time: increments the current time with
+   one second */
+void increment_time(void);
+
+/* alarm_clock_disable: disable alarm when reset is called */
+void alarm_clock_disable();
+
+#endif
