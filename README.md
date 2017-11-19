@@ -35,3 +35,6 @@
 - - $ cd ~/simple_os_2013_03_05/java_gui/java
 - - $ java GUISimpleOS
 - - $ ./set_clock (in ~/c/assignment2)
+
+## Assignment 3:
+- Test
