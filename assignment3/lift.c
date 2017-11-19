@@ -174,8 +174,16 @@ static int n_passengers_in_lift(lift_type lift)
    when the lift has arrived at the next floor. This function indicates
    to other tasks that the lift has arrived, and then waits until the lift
    shall move again. */
-void lift_has_arrived(lift_type lift)
+void lift_has_arrived(lift_type lift) ////////////////////////////////////////////////
 {
+    pthread_mutex_lock(&lift->mutex);
+
+    // signal that the lift has arrived at the next floor:
+    pthread_cond_broadcast(&lift->change);
+
+    // TODO! WAIT UNTIL THE LIFT SHALL MOVE AGAIN!
+
+    pthread_mutex_unlock(&lift->mutex);
 }
 
 /* --- functions related to lift task END --- */
@@ -256,10 +264,86 @@ static void leave_floor(lift_type lift, int id, int enter_floor)
     lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR;
 }
 
+// enter_lift: makes person *person enter the lift: /////////////////////////////////////////////////////////
+static void enter_lift(lift_type lift, person_type person)
+{
+    int found_empty, passenger_index;
+
+    found_empty = 0;
+    for (int i = 0; i < MAX_N_PASSENGERS && !found_empty; i++)
+    {
+        if (lift->passengers_in_lift[i].id == NO_ID) // (if empty spot in the lift)
+        {
+            found_empty = 1;
+            passenger_index = i;
+        }
+    }
+
+    if (!found_empty)
+    {
+        lift_panic("cannot enter the lift!");
+    }
+
+    lift->passengers_in_lift[passenger_index] = *person;
+}
+
+// leave_lift: makes person *person leave the lift: /////////////////////////////////////////////////////////
+static void leave_lift(lift_type lift, person_type person)
+{
+    int found, passenger_index;
+
+    found = 0;
+    for (int i = 0; i < MAX_N_PASSENGERS && !found; i++)
+    {
+        if (lift->passengers_in_lift[i].id == person->id)
+        {
+            found = 1;
+            passenger_index = i;
+        }
+    }
+
+    if (!found)
+    {
+        lift_panic("cannot leave the lift since the passenger wasn't found!");
+    }
+
+    lift->passengers_in_lift[passenger_index].id = NO_ID;
+    lift->passengers_in_lift[passenger_index].to_floor = NO_FLOOR;
+}
+
 /* MONITOR function lift_travel: performs a journey with the lift
    starting at from_floor, and ending at to_floor */
-void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
+void lift_travel(lift_type lift, int id, int from_floor, int to_floor) ///////////////////////////////
 {
+    person_data_type person;
+    person.id = id;
+    person.to_floor = to_floor;
+
+    pthread_mutex_lock(&lift->mutex);
+
+    enter_floor(lift, id, from_floor);
+    draw_lift(lift);
+
+    while(passenger_wait_for_lift(lift, from_floor))
+    {
+      // TODO! WAIT FOR CV HERE!
+    }
+
+    leave_floor(lift, id, from_floor);
+    enter_lift(lift, &person);
+    // TODO BROADCAST TO CV HERE!
+    draw_lift(lift);
+
+    while(passenger_wait_for_exit(lift, to_floor))
+    {
+      // TODO! WAIT FOR CV HERE!
+    }
+
+    leave_lift(lift, &person);
+    // TODO BROADCAST TO CV HERE!
+    draw_lift(lift);
+
+    pthread_mutex_unlock(&lift->mutex);
 }
 
 /* --- functions related to person task END --- */

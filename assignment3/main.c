@@ -19,6 +19,12 @@
 // assignment 3.
 //
 
+// semaphore for asymmetric synchronization (unique id to person threads) /////////////////////////
+sem_t id_read;
+
+// array of passenger thread handles: //////////////////////////////////////////////////////
+pthread_t passenger_thread_handles[MAX_N_PERSONS];
+
 static unsigned int rand_r_state[MAX_N_PERSONS];
 // Get a random value between 0 and maximum_value. The passenger_id
 // parameter is used to ensure that the rand_r() function is called in
@@ -62,8 +68,15 @@ static void* lift_thread(void *unused) /////////////////////////////////////////
 
 		while(1)
 		{
+				// compute which floor the lift should move to next:
 				lift_next_floor(Lift, &next_floor, &change_direction);
+
+				// move the lift to the next floor:
 				lift_move(Lift, next_floor, change_direction);
+
+				// signal that the lift has arrived at the next floor, wait until the
+				// lift shall move again:
+				lift_has_arrived(Lift);
 		}
 
 		return NULL;
@@ -77,16 +90,29 @@ static void* passenger_thread(void *idptr) /////////////////////////////////////
 		int *tmp = (int*) idptr;
 		int id = *tmp;
 
+		// signal that it's safe to modify *idptr: ////////////////////////////////////////////////
+		sem_post(&id_read);
+
 	  // Sets a unique name shown in debuggers
 	  char buf[100];
 	  sprintf(buf, "Passenger #%d", id);
 		prctl(PR_SET_NAME,buf,0,0,0);
+
+		int from_floor, to_floor;
 
 		while(1)
 		{
 				// * Select random floors
 				// * Travel between these floors
 				// * Wait a little while
+
+				from_floor = 1;
+				to_floor = 4;
+
+				lift_travel(Lift, id, from_floor, to_floor);
+
+				// sleep for 5 seconds:
+				usleep(5000000);
 		}
 
 		return NULL;
@@ -94,6 +120,9 @@ static void* passenger_thread(void *idptr) /////////////////////////////////////
 
 static void* user_thread(void *unused) /////////////////////////////////////////
 {
+		// initialize the semaphore for asymmetric synchronization:
+		sem_init(&id_read, 0, 0);
+
 		int current_passenger_id = 0;
 		char message[SI_UI_MAX_MESSAGE_SIZE];
 
@@ -112,6 +141,21 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 						// message if too many passengers have been
 						// created. Make sure that each passenger gets
 						// a unique ID between 0 and MAX_N_PERSONS-1.
+
+						if (current_passenger_id < MAX_N_PERSONS)
+						{
+								pthread_create(&passenger_thread_handles[current_passenger_id],
+												NULL, passenger_thread, (void*) &current_passenger_id);
+
+								// wait for current_passenger_id to be read by the passenger thread:
+								sem_wait(&id_read);
+
+								current_passenger_id++;
+						}
+						else
+						{
+								si_ui_show_error("Too many persons have been created!");
+						}
 				}
 				else if(!strcmp(message, "exit"))
 				{
@@ -142,19 +186,25 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 
 int main(int argc, char **argv) ////////////////////////////////////////////////
 {
-	si_ui_init();
-	init_random();
-	Lift = lift_create();
+		si_ui_init();
 
-	// create threads:
-	pthread_t lift_thread_handle;
-	pthread_t user_thread_handle;
-	pthread_create(&lift_thread_handle, NULL, lift_thread, 0);
-	pthread_create(&user_thread_handle, NULL, user_thread, 0);
+		init_random();
 
-	// join threads:
-	pthread_join(lift_thread_handle, NULL);
-	pthread_join(user_thread_handle, NULL);
+		Lift = lift_create();
 
-	return 0;
+		// create threads:
+		pthread_t lift_thread_handle;
+		pthread_t user_thread_handle;
+		pthread_create(&lift_thread_handle, NULL, lift_thread, 0);
+		pthread_create(&user_thread_handle, NULL, user_thread, 0);
+
+		// join threads:
+		pthread_join(lift_thread_handle, NULL);
+		pthread_join(user_thread_handle, NULL);
+		for (int i = 0; i < MAX_N_PERSONS; ++i)
+		{
+				pthread_join(passenger_thread_handles[i], NULL); // TODO! IS THIS CORRECT?!
+		}
+
+		return 0;
 }

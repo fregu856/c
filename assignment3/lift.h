@@ -23,6 +23,8 @@ typedef struct
     /* destination floor */
     int to_floor;
 } person_data_type;
+
+typedef person_data_type* person_type; ////////////////////////////////////////////////
 /* fig_end person_data_type */
 
 /* special numbers, to define no identity and no destination */
