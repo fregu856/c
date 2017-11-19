@@ -26,10 +26,10 @@ sem_t id_read;
 pthread_t passenger_thread_handles[MAX_N_PERSONS];
 
 static unsigned int rand_r_state[MAX_N_PERSONS];
+
 // Get a random value between 0 and maximum_value. The passenger_id
 // parameter is used to ensure that the rand_r() function is called in
 // a thread-safe manner.
-
 static int get_random_value(int passenger_id, int maximum_value)
 {
 		return rand_r(&rand_r_state[passenger_id]) % (maximum_value + 1);
@@ -106,8 +106,12 @@ static void* passenger_thread(void *idptr) /////////////////////////////////////
 				// * Travel between these floors
 				// * Wait a little while
 
-				from_floor = 1;
-				to_floor = 4;
+				from_floor = get_random_value(id, N_FLOORS-1);
+				to_floor = get_random_value(id, N_FLOORS-1);
+				while (to_floor == from_floor)
+				{
+					to_floor = get_random_value(id, N_FLOORS-1);
+				}
 
 				lift_travel(Lift, id, from_floor, to_floor);
 

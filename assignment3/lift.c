@@ -170,6 +170,74 @@ static int n_passengers_in_lift(lift_type lift)
     return n_passengers;
 }
 
+// possible_to_enter_lift: returns 1 if there is room for at least one more
+// passenger to enter the lift, otherwise returns 0: ///////////////////////////////////////////////////
+static int possible_to_enter_lift(lift_type lift)
+{
+    if (n_passengers_in_lift(lift) < MAX_N_PASSENGERS)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+// passengers_to_enter_lift: returns 1 if there is at least one passenger
+// waiting to enter the lift on the current floor, otherwise returns 0: /////////////////////////////////////////
+static int passengers_to_enter_lift(lift_type lift)
+{
+    int current_floor = lift->floor;
+
+    int person_found = 0;
+    for (int i = 0; i < MAX_N_PERSONS && !person_found; i++)
+    {
+        if (lift->persons_to_enter[current_floor][i].id != NO_ID)
+        {
+            person_found = 1;
+        }
+    }
+
+    return person_found;
+}
+
+// passengers_to_exit_lift: returns 1 if there is at least one passenger in the
+// lift that shall exit the lift on the current floor, otherwise returns 0: /////////////////////////////////////////
+static int passengers_to_exit_lift(lift_type lift)
+{
+    int current_floor = lift->floor;
+
+    int person_found = 0;
+    for (int i = 0; i < MAX_N_PASSENGERS && !person_found; i++)
+    {
+        if(lift->passengers_in_lift[i].to_floor == current_floor)
+        {
+            person_found = 1;
+        }
+    }
+
+    return person_found;
+}
+
+// lift_wait_for_passengers: returns 1 if the lift shall wait for
+// passengers to enter/leave the lift, otherwise returns 0: /////////////////////////////////////////
+static int lift_wait_for_passengers(lift_type lift)
+{
+    if (passengers_to_exit_lift(lift))
+    {
+        return 1;
+    }
+    else if (passengers_to_enter_lift(lift) && possible_to_enter_lift(lift))
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 /* MONITOR function lift_has_arrived: shall be called by the lift task
    when the lift has arrived at the next floor. This function indicates
    to other tasks that the lift has arrived, and then waits until the lift
@@ -181,7 +249,10 @@ void lift_has_arrived(lift_type lift) //////////////////////////////////////////
     // signal that the lift has arrived at the next floor:
     pthread_cond_broadcast(&lift->change);
 
-    // TODO! WAIT UNTIL THE LIFT SHALL MOVE AGAIN!
+    while(lift_wait_for_passengers(lift))
+    {
+        pthread_cond_wait(&lift->change, &lift->mutex);
+    }
 
     pthread_mutex_unlock(&lift->mutex);
 }
@@ -202,6 +273,19 @@ static int passenger_wait_for_lift(lift_type lift, int wait_floor)
         lift->floor == wait_floor &&
         /* and the lift is not full */
         n_passengers_in_lift(lift) < MAX_N_PASSENGERS;
+
+    return !waiting_ready;
+}
+
+// passenger_wait_for_exit: returns non-zero if the passenger shall wait for the
+// lift to arrive at his/her destination floor, otherwise returns zero: ////////////////////////////////
+static int passenger_wait_for_exit(lift_type lift, int destination_floor)
+{
+    int waiting_ready =
+        /* the lift is not moving */
+        !lift->moving &&
+        /* and the lift is at destination_floor */
+        lift->floor == destination_floor;
 
     return !waiting_ready;
 }
@@ -315,6 +399,8 @@ static void leave_lift(lift_type lift, person_type person)
    starting at from_floor, and ending at to_floor */
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor) ///////////////////////////////
 {
+    // TODO! IS THIS FUNCTION CORRECT?!!
+
     person_data_type person;
     person.id = id;
     person.to_floor = to_floor;
@@ -322,25 +408,29 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor) /////////
     pthread_mutex_lock(&lift->mutex);
 
     enter_floor(lift, id, from_floor);
+    pthread_cond_broadcast(&lift->change);
+
     draw_lift(lift);
 
     while(passenger_wait_for_lift(lift, from_floor))
     {
-      // TODO! WAIT FOR CV HERE!
+        pthread_cond_wait(&lift->change, &lift->mutex);
     }
 
     leave_floor(lift, id, from_floor);
     enter_lift(lift, &person);
-    // TODO BROADCAST TO CV HERE!
+    pthread_cond_broadcast(&lift->change);
+
     draw_lift(lift);
 
     while(passenger_wait_for_exit(lift, to_floor))
     {
-      // TODO! WAIT FOR CV HERE!
+        pthread_cond_wait(&lift->change, &lift->mutex);
     }
 
     leave_lift(lift, &person);
-    // TODO BROADCAST TO CV HERE!
+    pthread_cond_broadcast(&lift->change);
+
     draw_lift(lift);
 
     pthread_mutex_unlock(&lift->mutex);
