@@ -183,14 +183,14 @@ void *clock_thread(void *unused)
         /* increment time */
         increment_time();
 
-        /* wait 0.5 seconds */
+        // wait 0.5 seconds:
         usleep(500000);
     }
 }
 
 /* set_task: reads messages from the user interface, and
    sets the clock, or exits the program */
-void * set_thread(void *unused)
+void *set_thread(void *unused)
 {
     /* message array */
     char message[SI_UI_MAX_MESSAGE_SIZE];
