@@ -412,7 +412,7 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor) /////////
     pthread_mutex_lock(&lift->mutex);
 
     enter_floor(lift, id, from_floor);
-    pthread_cond_broadcast(&lift->change);
+    pthread_cond_broadcast(&lift->change); // kanske kan strunta i denna????!!111!!
 
     draw_lift(lift);
 

@@ -204,6 +204,7 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 				}
 				else if(!strcmp(message, "test"))
 				{
+					// Test full hiss
 					debug_override(0, 0, 4);
 					debug_override(1, 0, 4);
 					debug_override(2, 0, 4);
@@ -213,11 +214,22 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 					debug_override(6, 2, 4);
 					debug_override(7, 2, 4);
 					debug_override(8, 2, 4);
-					debug_override(9, 2, 4);
-					
-					
-						// TODO!
+					debug_override(9, 2, 4);	
 				}
+				else if(!strcmp(message, "test2"))
+				{
+					// Test 
+					debug_override(0, 0, 0);
+					debug_override(1, 0, 0);
+					debug_override(2, 0, 0);
+					debug_override(3, 0, 0);
+					debug_override(4, 0, 0);
+					debug_override(5, 2, 2);
+					debug_override(6, 2, 2);
+					debug_override(7, 2, 2);
+					debug_override(8, 2, 2);
+					debug_override(9, 2, 2);	
+				}		
 		}
 
 		return NULL;
