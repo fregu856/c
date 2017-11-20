@@ -205,8 +205,7 @@ int main(int argc, char **argv) ////////////////////////////////////////////////
 		// join threads:
 		pthread_join(lift_thread_handle, NULL);
 		pthread_join(user_thread_handle, NULL);
-		int i;
-		for (i = 0; i < MAX_N_PERSONS; ++i)
+		for (int i = 0; i < MAX_N_PERSONS; ++i)
 		{
 				pthread_join(passenger_thread_handles[i], NULL); // TODO! IS THIS CORRECT?!
 		}
