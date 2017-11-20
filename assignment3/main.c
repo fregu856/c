@@ -112,7 +112,8 @@ static void* passenger_thread(void *idptr) /////////////////////////////////////
 				{
 					to_floor = get_random_value(id, N_FLOORS-1);
 				}
-
+				
+				debug_check_override(id, &from_floor, &to_floor);
 				lift_travel(Lift, id, from_floor, to_floor);
 
 				// sleep for 5 seconds:
@@ -132,6 +133,8 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 
 		si_ui_set_size(670, 700);
 		prctl(PR_SET_NAME,"User Thread",0,0,0); // Sets the name shown in debuggers for this thread
+		
+		int number_of_threads;
 
 		while(1)
 		{
@@ -145,7 +148,7 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 						// message if too many passengers have been
 						// created. Make sure that each passenger gets
 						// a unique ID between 0 and MAX_N_PERSONS-1.
-
+						
 						if (current_passenger_id < MAX_N_PERSONS)
 						{
 								pthread_create(&passenger_thread_handles[current_passenger_id],
@@ -160,6 +163,31 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 						{
 								si_ui_show_error("Too many persons have been created!");
 						}
+				}
+				else if(!strncmp(message, "new", 3))
+				{
+					sscanf(message, "new %d", &number_of_threads);
+					if(number_of_threads > 0 && number_of_threads <= MAX_N_PERSONS)
+					{
+						int i;
+						for(i = 0; i < number_of_threads; i++)
+						{
+							if (current_passenger_id < MAX_N_PERSONS)
+							{
+									pthread_create(&passenger_thread_handles[current_passenger_id],
+													NULL, passenger_thread, (void*) &current_passenger_id);
+
+									// wait for current_passenger_id to be read by the passenger thread:
+									sem_wait(&id_read);
+
+									current_passenger_id++;
+							}
+							else
+							{
+									si_ui_show_error("Too many persons have been created!");
+							}
+						}
+					}
 				}
 				else if(!strcmp(message, "exit"))
 				{
@@ -176,9 +204,32 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 				}
 				else if(!strcmp(message, "test"))
 				{
-						//debug_override(0, 0, 2);
-						// TODO!
+					// Test full hiss
+					debug_override(0, 0, 4);
+					debug_override(1, 0, 4);
+					debug_override(2, 0, 4);
+					debug_override(3, 0, 4);
+					debug_override(4, 0, 4);
+					debug_override(5, 2, 4);
+					debug_override(6, 2, 4);
+					debug_override(7, 2, 4);
+					debug_override(8, 2, 4);
+					debug_override(9, 2, 4);	
 				}
+				else if(!strcmp(message, "test2"))
+				{
+					// Test 
+					debug_override(0, 0, 0);
+					debug_override(1, 0, 0);
+					debug_override(2, 0, 0);
+					debug_override(3, 0, 0);
+					debug_override(4, 0, 0);
+					debug_override(5, 2, 2);
+					debug_override(6, 2, 2);
+					debug_override(7, 2, 2);
+					debug_override(8, 2, 2);
+					debug_override(9, 2, 2);	
+				}		
 		}
 
 		return NULL;
@@ -191,6 +242,7 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 int main(int argc, char **argv) ////////////////////////////////////////////////
 {
 		si_ui_init();
+		debug_init();
 
 		init_random();
 
@@ -201,7 +253,7 @@ int main(int argc, char **argv) ////////////////////////////////////////////////
 		pthread_t user_thread_handle;
 		pthread_create(&lift_thread_handle, NULL, lift_thread, 0);
 		pthread_create(&user_thread_handle, NULL, user_thread, 0);
-
+		
 		// join threads:
 		pthread_join(lift_thread_handle, NULL);
 		pthread_join(user_thread_handle, NULL);
