@@ -35,3 +35,16 @@
 - - $ cd ~/simple_os_2013_03_05/java_gui/java
 - - $ java GUISimpleOS
 - - $ ./set_clock (in ~/c/assignment2)
+
+## Assignment 3:
+- Place the images in assignment3 in ~/simple_os_2013_03_05/java_gui/images
+
+- Compile and execute the program lift_pthreads:
+- - $ cd ~/c/assignment3
+- - $ make lift_pthreads
+
+- Run lift_pthreads:
+- - $ cd ~/simple_os_2013_03_05/java_gui/java
+- - $ java GUISimpleOS
+- - $ ./lift_pthreads (in ~/c/assignment3)
+
