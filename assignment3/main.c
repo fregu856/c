@@ -112,7 +112,7 @@ static void* passenger_thread(void *idptr) /////////////////////////////////////
 				{
 					to_floor = get_random_value(id, N_FLOORS-1);
 				}
-				
+
 				debug_check_override(id, &from_floor, &to_floor);
 				lift_travel(Lift, id, from_floor, to_floor);
 
@@ -133,7 +133,7 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 
 		si_ui_set_size(670, 700);
 		prctl(PR_SET_NAME,"User Thread",0,0,0); // Sets the name shown in debuggers for this thread
-		
+
 		int number_of_threads;
 
 		while(1)
@@ -148,7 +148,7 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 						// message if too many passengers have been
 						// created. Make sure that each passenger gets
 						// a unique ID between 0 and MAX_N_PERSONS-1.
-						
+
 						if (current_passenger_id < MAX_N_PERSONS)
 						{
 								pthread_create(&passenger_thread_handles[current_passenger_id],
@@ -214,11 +214,11 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 					debug_override(6, 2, 4);
 					debug_override(7, 2, 4);
 					debug_override(8, 2, 4);
-					debug_override(9, 2, 4);	
+					debug_override(9, 2, 4);
 				}
 				else if(!strcmp(message, "test2"))
 				{
-					// Test 
+					// Test
 					debug_override(0, 0, 0);
 					debug_override(1, 0, 0);
 					debug_override(2, 0, 0);
@@ -228,8 +228,8 @@ static void* user_thread(void *unused) /////////////////////////////////////////
 					debug_override(6, 2, 2);
 					debug_override(7, 2, 2);
 					debug_override(8, 2, 2);
-					debug_override(9, 2, 2);	
-				}		
+					debug_override(9, 2, 2);
+				}
 		}
 
 		return NULL;
@@ -253,7 +253,7 @@ int main(int argc, char **argv) ////////////////////////////////////////////////
 		pthread_t user_thread_handle;
 		pthread_create(&lift_thread_handle, NULL, lift_thread, 0);
 		pthread_create(&user_thread_handle, NULL, user_thread, 0);
-		
+
 		// join threads:
 		pthread_join(lift_thread_handle, NULL);
 		pthread_join(user_thread_handle, NULL);
