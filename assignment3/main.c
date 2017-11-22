@@ -260,7 +260,7 @@ int main(int argc, char **argv) ////////////////////////////////////////////////
 		int i;
 		for (i = 0; i < MAX_N_PERSONS; ++i)
 		{
-				pthread_join(passenger_thread_handles[i], NULL); 
+				pthread_join(passenger_thread_handles[i], NULL);
 		}
 
 		return 0;
