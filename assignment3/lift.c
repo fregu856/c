@@ -403,8 +403,6 @@ static void leave_lift(lift_type lift, person_type person)
    starting at from_floor, and ending at to_floor */
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor) ///////////////////////////////
 {
-    // TODO! IS THIS FUNCTION CORRECT?!!
-
     person_data_type person;
     person.id = id;
     person.to_floor = to_floor;
