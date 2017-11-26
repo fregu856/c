@@ -40,7 +40,7 @@ struct lift_msg{
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// helper functions:
+// general helper functions:
 ////////////////////////////////////////////////////////////////////////////////
 
 static int get_random_value(int person_id, int maximum_value)
@@ -54,6 +54,66 @@ static void init_random(void)
 {
 		srand(getpid()); // The pid should be a good enough initialization for
                    	 // this case at least.
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// lift helper functions:
+////////////////////////////////////////////////////////////////////////////////
+
+// for all passengers that want to leave the lift, remove the passenger from the
+// lift and send a LIFT_TRAVEL_DONE message:
+static void drop_off_passengers_to_leave(lift_type lift)
+{
+		int id;
+
+		struct lift_msg done_msg;
+		done_msg.type = LIFT_TRAVEL_DONE;
+
+		int current_floor = get_current_floor(lift);
+
+		int i;
+		for (i = 0; i < MAX_N_PASSENGERS; i++)
+		{
+				if(lift->passengers_in_lift[i].to_floor == current_floor)
+				{
+						// get the passenger's id:
+						id = lift->passengers_in_lift[i].id;
+
+						// make the passenger leave the lift:
+						leave_lift(lift, current_floor, &id);
+
+						// send a LIFT_TRAVEL_DONE message to the passenger's person_process:
+						message_send((char *) &done_msg, sizeof(done_msg), QUEUE_FIRSTPERSON + id, 0);
+				}
+		}
+}
+
+// for all persons that want and CAN enter the lift, remove the
+// person from the floor and make it enter the lift:
+static void pick_up_persons_to_enter(lift_type lift)
+{
+		int id, to_floor;
+
+		int current_floor = get_current_floor(lift);
+
+		int i;
+		for (i=0; i < MAX_N_PERSONS; i++)
+		{
+				if (lift_is_full(lift))
+				{
+						break;
+				}
+
+				if (lift->persons_to_enter[current_floor][i].id != NO_ID)
+				{
+						id = lift->persons_to_enter[current_floor][i].id;
+						to_floor = lift->persons_to_enter[current_floor][i].to_floor;
+
+						leave_floor(lift, current_floor, &id, &to_floor);
+
+						enter_lift(lift, id, to_floor);
+				}
+		}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,10 +144,10 @@ static void lift_process(void)
 
 		while(1)
 		{
-				int i;
-				struct lift_msg reply;
 				struct lift_msg *m;
-				message_send((char *) Lift, sizeof(*Lift), QUEUE_UI, 0); // Draw the lift
+
+				// draw the lift
+				message_send((char *) Lift, sizeof(*Lift), QUEUE_UI, 0);
 
 				int len = message_receive(msgbuf, 4096, QUEUE_LIFT); // Wait for a message
 				if(len < sizeof(struct lift_msg))
@@ -100,7 +160,6 @@ static void lift_process(void)
 				switch(m->type)
 				{
 						case LIFT_MOVE:
-								// TODO:
 								//    Check if passengers want to leave elevator
                 //        Remove the passenger from the elevator
                 //        Send a LIFT_TRAVEL_DONE for each passenger that leaves
@@ -114,6 +173,12 @@ static void lift_process(void)
 
 								// move the lift:
 								lift_move(Lift, next_floor, change_direction);
+
+								// drop off all passengers that want to leave at the current floor:
+								drop_off_passengers_to_leave(Lift);
+
+								// pick upp all persons that want and CAN enter the lift:
+								pick_up_persons_to_enter(Lift);
 
 								break;
 						case LIFT_TRAVEL:
