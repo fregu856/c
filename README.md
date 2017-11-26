@@ -48,3 +48,12 @@
 - - $ java GUISimpleOS
 - - $ ./lift_pthreads (in ~/c/assignment3)
 
+## Assignment 4:
+- Compile and execute the program lift_messages:
+- - $ cd ~/c/assignment4
+- - $ make lift_messages
+
+- Run lift_messages:
+- - $ cd ~/simple_os_2013_03_05/java_gui/java
+- - $ java GUISimpleOS
+- - $ ./lift_messages (in ~/c/assignment4)
