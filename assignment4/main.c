@@ -71,8 +71,6 @@ static void drop_off_passengers_to_leave(lift_type lift)
 
 		int current_floor = get_current_floor(lift);
 
-		fprintf(stderr, "drop_off_passengers_to_leave\n");
-
 		int i;
 		for (i = 0; i < MAX_N_PASSENGERS; i++)
 		{
@@ -224,8 +222,6 @@ static void person_process(int id)
 				msg.to_floor = to_floor;
 				message_send((char *) &msg, sizeof(msg), QUEUE_LIFT, 0);
 
-				fprintf(stderr, "before\n");
-
 				// wait for a LIFT_TRAVEL_DONE message: // TODO! valid method to deal with communication errors??
 				rec_msg->type = VOID_TYPE;
 				while (rec_msg->type != LIFT_TRAVEL_DONE)
@@ -244,8 +240,6 @@ static void person_process(int id)
 								continue; // (skip to the next while loop iteration)
 						}
 				}
-
-				fprintf(stderr, "after\n");
 
 				// sleep for 5 seconds:
 				usleep(5000000);
