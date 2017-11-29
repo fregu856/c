@@ -194,7 +194,8 @@ static void person_process(int id)
 {
 		init_random();
 		char rec_msgbuf[4096];
-		struct lift_msg *rec_msg;
+		struct lift_msg rec_msg_data;
+		struct lift_msg *rec_msg = &rec_msg_data;
 		struct lift_msg msg;
 
 		int from_floor, to_floor;
@@ -212,8 +213,6 @@ static void person_process(int id)
 				{
 					to_floor = get_random_value(id, N_FLOORS - 1);
 				}
-
-				//debug_check_override(id, &from_floor, &to_floor);
 
 				// send a LIFT_TRAVEL message to lift_process:
 				msg.type = LIFT_TRAVEL;
