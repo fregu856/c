@@ -12,7 +12,7 @@
 
 static char message[SI_UI_MAX_MESSAGE_SIZE];
 
-static int xBuilding = 50; 
+static int xBuilding = 50;
 static int yBuilding = 100;
 
 static int xLift = 355;
