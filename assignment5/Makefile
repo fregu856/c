@@ -4,11 +4,18 @@ LIBS=-lrt -lpthread
 CFILES_3=lift_3.c main_3.c si_ui.c si_comm.c draw_3.c debug.c
 HEADERS_3=lift_3.h si_ui.h si_comm.h draw_3.h debug.h
 
+CFILES_3_mod=lift_3_mod.c main_3_mod.c si_ui.c si_comm.c draw_3.c debug.c
+HEADERS_3_mod=lift_3_mod.h si_ui.h si_comm.h draw_3.h debug.h
+
 CFILES_4=lift_4.c main_4.c si_ui.c si_comm.c draw_4.c messages.c
 HEADERS_4=lift_4.h si_ui.h si_comm.h draw_4.h messages.h
 
 3: $(CFILES_3) $(HEADERS_3)
 	gcc $(CFLAGS) $(CFILES_3) -o 3 $(LIBS)
+
+3_mod: $(CFILES_3_mod) $(HEADERS_3_mod)
+	gcc $(CFLAGS) $(CFILES_3_mod) -o 3_mod $(LIBS)
+
 
 
 4: $(CFILES_4) $(HEADERS_4)
@@ -16,4 +23,8 @@ HEADERS_4=lift_4.h si_ui.h si_comm.h draw_4.h messages.h
 
 clean:
 	rm -f 3 *~ *.o
+	rm -f 3_mod *~ *.o
+	rm -f 3_opt *~ *.o
 	rm -f 4 *~ *.o
+	rm -f 4_mod *~ *.o
+	rm -f 4_opt *~ *.o
