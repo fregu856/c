@@ -31,7 +31,7 @@ HEADERS_4_mod=lift_4_mod.h si_ui.h si_comm.h draw_4.h messages.h
 	gcc $(CFLAGS) $(CFILES_3_mod) -o 3_mod $(LIBS)
 
 3_mod_opt: $(CFILES_3_mod_opt) $(HEADERS_3_mod_opt)
-	gcc $(CFLAGS) $(CFILES_3_mod_opt) -o 3_mod $(LIBS)
+	gcc $(CFLAGS) $(CFILES_3_mod_opt) -o 3_mod_opt $(LIBS)
 
 
 

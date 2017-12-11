@@ -8,7 +8,7 @@
 #define N_FLOORS 5
 
 /* maximum number of persons in the lift system */
-#define MAX_N_PERSONS 32
+#define MAX_N_PERSONS 128
 
 /* maximum number of passengers in lift */
 #define MAX_N_PASSENGERS 5
@@ -55,8 +55,14 @@ typedef struct
     /* mutex for mutual exclusion */
     pthread_mutex_t mutex;
 
-    /* condition variable, to indicate that something has happend */
-    pthread_cond_t change;
+    // CV for every floor, signaling that the lift has arrived at that floor:
+    pthread_cond_t floor_CVs[N_FLOORS]; ////////////////////////////////////////////////////////////////////////////////////
+
+    // CV to signal to passengers in the lift that the lift has arrived at a new floor:
+    pthread_cond_t passenger_CV; ////////////////////////////////////////////////////////////////////////////////////
+
+    // CV to signal that a person has either entered or exited the lift:
+    pthread_cond_t lift_CV; ///////////////////////////////////////////////////////////////////////////////////
 } lift_data_type;
 
 typedef lift_data_type* lift_type;
@@ -84,7 +90,7 @@ void lift_move(lift_type lift, int next_floor, int change_direction);
    process when the lift has arrived at the next floor. This function
    indicates to other processes that the lift has arrived, and then waits
    until the lift shall move again. */
-void lift_has_arrived(lift_type lift);
+void lift_has_arrived(lift_type lift, int floor); ////////////////////////////////////////////////////////
 
 /* MONITOR function lift_travel: makes the person with id id perform
    a journey with the lift, starting at from_floor and ending
