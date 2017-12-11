@@ -24,6 +24,9 @@ HEADERS_4_opt=lift_4_opt.h si_ui.h si_comm.h draw_4.h messages.h
 CFILES_4_mod=lift_4_mod.c main_4_mod.c si_ui.c si_comm.c draw_4_opt.c messages.c
 HEADERS_4_mod=lift_4_mod.h si_ui.h si_comm.h draw_4.h messages.h
 
+CFILES_4_mod_opt=lift_4_mod_opt.c main_4_mod_opt.c si_ui.c si_comm.c draw_4_opt.c messages.c
+HEADERS_4_mod_opt=lift_4_mod_opt.h si_ui.h si_comm.h draw_4.h messages.h
+
 3: $(CFILES_3) $(HEADERS_3)
 	gcc $(CFLAGS) $(CFILES_3) -o 3 $(LIBS)
 
@@ -46,6 +49,9 @@ HEADERS_4_mod=lift_4_mod.h si_ui.h si_comm.h draw_4.h messages.h
 
 4_mod: $(CFILES_4_mod) $(HEADERS_4_mod)
 	gcc $(CFLAGS) $(CFILES_4_mod) -o 4_mod $(LIBS)
+
+4_mod_opt: $(CFILES_4_mod_opt) $(HEADERS_4_mod_opt)
+	gcc $(CFLAGS) $(CFILES_4_mod_opt) -o 4_mod_opt $(LIBS)
 
 clean:
 	rm -f 3 *~ *.o

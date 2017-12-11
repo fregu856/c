@@ -6,13 +6,13 @@
 #define N_FLOORS 5
 
 /* maximum number of persons in the lift system */
-#define MAX_N_PERSONS 2 ///////////////////////////////////////////////////////////////////
+#define MAX_N_PERSONS 64
 
 /* maximum number of passengers in lift */
-#define MAX_N_PASSENGERS 2 ///////////////////////////////////////////////////////////////
+#define MAX_N_PASSENGERS 5
 /* fig_end lift_h_defs */
 
-#define NUM_TRIPS 2 //////////////////////////////////////////////////////////////////////
+#define NUM_TRIPS 128 //////////////////////////////////////////////////////////////////////
 
 /* fig_begin person_data_type */
 /* data structure for person information */
