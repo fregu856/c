@@ -18,10 +18,10 @@ HEADERS_3_mod_opt=lift_3_mod_opt.h si_ui.h si_comm.h draw_3.h debug.h
 CFILES_4=lift_4.c main_4.c si_ui.c si_comm.c draw_4.c messages.c
 HEADERS_4=lift_4.h si_ui.h si_comm.h draw_4.h messages.h
 
-CFILES_4_opt=lift_4_opt.c main_4_opt.c si_ui.c si_comm.c draw_4.c messages.c
+CFILES_4_opt=lift_4_opt.c main_4_opt.c si_ui.c si_comm.c draw_4_opt.c messages.c
 HEADERS_4_opt=lift_4_opt.h si_ui.h si_comm.h draw_4.h messages.h
 
-CFILES_4_mod=lift_4_mod.c main_4_mod.c si_ui.c si_comm.c draw_4.c messages.c
+CFILES_4_mod=lift_4_mod.c main_4_mod.c si_ui.c si_comm.c draw_4_opt.c messages.c
 HEADERS_4_mod=lift_4_mod.h si_ui.h si_comm.h draw_4.h messages.h
 
 3: $(CFILES_3) $(HEADERS_3)

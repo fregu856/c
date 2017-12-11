@@ -1,7 +1,7 @@
 #include "lift_4_opt.h" ///////////////////////////////////////////////////
 
 /* drawing module */
-#include "draw_4.h"
+#include "draw_4_opt.h"
 
 /* standard includes */
 #include <stdlib.h>

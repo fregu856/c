@@ -9,7 +9,7 @@
 #include "si_ui.h"
 #include "messages.h"
 
-#include "draw_4.h"
+#include "draw_4_opt.h"
 
 #define QUEUE_UI 0
 #define QUEUE_LIFT 1
@@ -35,7 +35,7 @@ typedef enum {LIFT_TRAVEL, // A travel message is sent to the list process when 
 
 struct lift_msg{ ///////////////////////////////////////////////////////////////////////////////////////////////////////
 		lift_msg_type type;  // Type of message
-		person_type person_ptr;
+		person_data_type person;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,12 +147,15 @@ static void lift_process(void)
 		int change_direction, next_floor;
 		char msgbuf[4096];
 
+		person_data_type person;
+
 		while(1)
 		{
 				struct lift_msg *m;
 
 				// draw the lift
 				message_send((char *) Lift, sizeof(*Lift), QUEUE_UI, 0);
+				//printf("sizeof(*Lift): %d\n", sizeof(*Lift));
 
 				int len = message_receive(msgbuf, 4096, QUEUE_LIFT); // Wait for a message
 				if(len < sizeof(struct lift_msg))
@@ -189,7 +192,8 @@ static void lift_process(void)
 						case LIFT_TRAVEL:
 	              // update the Lift structure so that the person with the given
 								// ID is now present on the floor:
-								enter_floor(Lift, m->person_ptr); /////////////////////////////////////////////////
+								person = m->person;
+								enter_floor(Lift, &person); /////////////////////////////////////////////////
 								break;
 				}
 		}
@@ -208,6 +212,7 @@ static void person_process(int id)
 
 		while(1)
 		{
+				printf("while loop in person_process() %d\n", id);
 				//    Generate a to and from floor
 				//    Send a LIFT_TRAVEL message to the lift process
         //    Wait for a LIFT_TRAVEL_DONE message
@@ -229,12 +234,11 @@ static void person_process(int id)
 				memcpy(person.from_floors, from_floors, sizeof(from_floors));
 				person.index = 0;
 
-
-
 				// send a LIFT_TRAVEL message to lift_process: ////////////////////////////////////////////////////
 				msg.type = LIFT_TRAVEL;
-				msg.person_ptr = &person;
+				msg.person = person;
 				message_send((char *) &msg, sizeof(msg), QUEUE_LIFT, 0);
+				printf("sizeof(msg): %d\n", sizeof(msg));
 
 				// wait for a LIFT_TRAVEL_DONE message:
 				rec_msg->type = VOID_TYPE;
