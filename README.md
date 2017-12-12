@@ -63,22 +63,14 @@
 - - $ cd ~/c/assignment5
 - - $ make 3
 
+- Compile the optimized program with GUI for assignment 3:
+- - $ cd ~/c/assignment5
+- - $ make 3_opt
+
 - Compile the modified, unoptimized program for assignment 3:
 - - $ cd ~/c/assignment5
 - - $ make 3_mod
 
 - Compile the modified, optimized program for assignment 3:
 - - $ cd ~/c/assignment5
-- - $ make 3_opt
-
-- Compile the original program for assignment 4:
-- - $ cd ~/c/assignment5
-- - $ make 4
-
-- Compile the modified, unoptimized program for assignment 4:
-- - $ cd ~/c/assignment5
-- - $ make 4_mod
-
-- Compile the modified, optimized program for assignment 4:
-- - $ cd ~/c/assignment5
-- - $ make 4_opt
+- - $ make 3_mod_opt
