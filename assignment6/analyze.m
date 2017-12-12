@@ -36,9 +36,12 @@ ylabel('Sample value');
 
 figure(3)
 clf
+plot(ideal_output(:,1));
+title('Ideal data');
+
+figure(4)
+clf
 plot(ideal_output(:,1) - output(:,1));
 %hold on
 %plot(ideal_output(:,1) - output(:,2),'r');
 title('Difference between ideally sampled data and experimental results');
-
-

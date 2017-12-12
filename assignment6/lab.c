@@ -26,7 +26,10 @@
 // here when you modify this file according to the lab instructions.
 static int sample_buffer[PROCESSING_INTERVAL];
 
+int sample_task_FINISHED = 0;
+
 sem_t full_buffer_sem; //////////////////////////////////////////////////////////////////////////////
+pthread_mutex_t mutex; //////////////////////////////////////////////////////////////////////////////
 
 struct timespec firsttime;
 
@@ -51,8 +54,6 @@ void do_work(int *samples)
 
 void* sample_task(void* unused)
 {
-    sem_init(&full_buffer_sem, 0, 0); ///////////////////////////////////////////////////////////////
-
     int channel = 0;
     struct timespec current;
     int i;
@@ -71,7 +72,9 @@ void* sample_task(void* unused)
     {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &current, NULL);
 
+        pthread_mutex_lock(&mutex); ////////////////////////////////////////////////////////
         sample_buffer[samplectr] = read_sample(channel);
+        pthread_mutex_unlock(&mutex);
         samplectr++;
         if(samplectr == PROCESSING_INTERVAL)
         {
@@ -88,6 +91,9 @@ void* sample_task(void* unused)
             current.tv_sec++;
         }
     }
+
+    sample_task_FINISHED = 1;
+
     return NULL;
 }
 
@@ -95,10 +101,20 @@ void* dowork_task(void* unused) ////////////////////////////////////////////////
 {
     int sample_buffer_dowork[PROCESSING_INTERVAL];
 
-    while (1)
+    // ensure that we have real time priority set //////////////////////////////////////////////////////////
+    struct sched_param sp;
+    sp.sched_priority = 5;
+    if(pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp))
+    {
+      fprintf(stderr,"WARNING: Failed to set sample_task to realtime priority\n");
+    }
+
+    while (!sample_task_FINISHED)
     {
         sem_wait(&full_buffer_sem);
+        pthread_mutex_lock(&mutex);
         memcpy(sample_buffer_dowork, sample_buffer, sizeof(sample_buffer));
+        pthread_mutex_unlock(&mutex);
         do_work(sample_buffer_dowork);
     }
 
@@ -107,6 +123,9 @@ void* dowork_task(void* unused) ////////////////////////////////////////////////
 
 int main(int argc,char **argv)
 {
+    sem_init(&full_buffer_sem, 0, 0); ///////////////////////////////////////////////////////////////
+    pthread_mutex_init(&mutex, NULL); ////////////////////////////////////////////////////////////////
+
     // ensure that all memory that we allocate is locked, to prevent swapping: ////////////////////////////////
     if(mlockall(MCL_FUTURE|MCL_CURRENT))
     {
@@ -149,15 +168,13 @@ int main(int argc,char **argv)
     pthread_create(&sample_task_handle, &sample_task_attr, sample_task, NULL);
     pthread_create(&dowork_task_handle, &dowork_task_attr, dowork_task, NULL);
 
+    // join threads
     pthread_join(sample_task_handle, NULL);
+    pthread_join(dowork_task_handle, NULL);
 
     // Dump output data which will be used by the analyze.m script
     dump_outdata();
     dump_sample_times();
-
-    fprintf(stderr, "Data has been dumped\n");
-
-    pthread_join(dowork_task_handle, NULL);
 
     return 0;
 }
