@@ -25,6 +25,7 @@
 // Could be a local variable, but you may need it as a static variable
 // here when you modify this file according to the lab instructions.
 static int sample_buffer[PROCESSING_INTERVAL];
+static int sample_buffer_dowork[PROCESSING_INTERVAL];
 
 int sample_task_FINISHED = 0;
 
@@ -72,14 +73,12 @@ void* sample_task(void* unused)
     {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &current, NULL);
 
-        pthread_mutex_lock(&mutex); ////////////////////////////////////////////////////////
         sample_buffer[samplectr] = read_sample(channel);
-        pthread_mutex_unlock(&mutex);
         samplectr++;
         if(samplectr == PROCESSING_INTERVAL)
         {
             samplectr = 0;
-            //do_work(sample_buffer);
+            memcpy(sample_buffer_dowork, sample_buffer, sizeof(sample_buffer));
             sem_post(&full_buffer_sem); //////////////////////////////////////////////////////////////
         }
 
@@ -99,8 +98,6 @@ void* sample_task(void* unused)
 
 void* dowork_task(void* unused) /////////////////////////////////////////////////////////////
 {
-    int sample_buffer_dowork[PROCESSING_INTERVAL];
-
     // ensure that we have real time priority set //////////////////////////////////////////////////////////
     struct sched_param sp;
     sp.sched_priority = 5;
@@ -112,9 +109,6 @@ void* dowork_task(void* unused) ////////////////////////////////////////////////
     while (!sample_task_FINISHED)
     {
         sem_wait(&full_buffer_sem);
-        pthread_mutex_lock(&mutex);
-        memcpy(sample_buffer_dowork, sample_buffer, sizeof(sample_buffer));
-        pthread_mutex_unlock(&mutex);
         do_work(sample_buffer_dowork);
     }
 
