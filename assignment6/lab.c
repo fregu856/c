@@ -30,27 +30,27 @@ static int sample_buffer_dowork[PROCESSING_INTERVAL];
 int sample_task_FINISHED = 0;
 
 sem_t full_buffer_sem; //////////////////////////////////////////////////////////////////////////////
-pthread_mutex_t mutex; //////////////////////////////////////////////////////////////////////////////
 
 struct timespec firsttime;
 
 void do_work(int *samples)
 {
-        int i;
+    int i;
 
-        //  A busy loop. (In a real system this would do something
-        //  more interesting such as an FFT or a particle filter,
-        //  etc...)
-        volatile int dummy; // A compiler warning is ok here
-        for(i=0; i < 20000000;i++){
-                dummy=i;
-        }
+    //  A busy loop. (In a real system this would do something
+    //  more interesting such as an FFT or a particle filter,
+    //  etc...)
+    volatile int dummy; // A compiler warning is ok here
+    for(i=0; i < 20000000;i++)
+    {
+        dummy=i;
+    }
 
-        // Write out the samples.
-        for(i=0; i < PROCESSING_INTERVAL; i++){
-                write_sample(0,samples[i]);
-        }
-
+    // Write out the samples.
+    for(i=0; i < PROCESSING_INTERVAL; i++)
+    {
+        write_sample(0,samples[i]);
+    }
 }
 
 void* sample_task(void* unused)
@@ -118,7 +118,6 @@ void* dowork_task(void* unused) ////////////////////////////////////////////////
 int main(int argc,char **argv)
 {
     sem_init(&full_buffer_sem, 0, 0); ///////////////////////////////////////////////////////////////
-    pthread_mutex_init(&mutex, NULL); ////////////////////////////////////////////////////////////////
 
     // ensure that all memory that we allocate is locked, to prevent swapping: ////////////////////////////////
     if(mlockall(MCL_FUTURE|MCL_CURRENT))
